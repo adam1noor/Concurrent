@@ -1,0 +1,21 @@
+7a) This doesn't achieve the required goal since the processes may change state after the
+message has been sent and so you may end up terminating a process which is still active.
+This can be done if a Node K sends a message to a node earlier in the ring
+
+b) A different way to achieve the same goal is to create a node "Server" which has an
+array of which nodes are active and which are passive. Every Node sends an update to the
+server whenever it changes state as well as sending a message to let the server know that
+it has sent a message or recieved one from another node. The server Node terminates the
+process if all nodes are passive and all nodes have recieved all other messages.
+
+The update of state can be sent through a ManyOne[(Boolean,Int)] channel which contains
+if the node is active or not and the ID Number of the node. The message checking property
+can be implemented through a Queue which enqueues when a message is sent and dequeues when
+a message is recieved. It isn't neccesary to check if the messages pair up since the number
+of messages sent and recieved should be equal.
+
+This method is safe and is live but is expensive as it requires every node to double the
+amount of messages it sends (The Message checking property) and also requires every node
+to send an update whenver its state changes.
+
+c) In this the original scheme does work if another check is implemented at node 0 to catch any messages that are sent through it while the checking mechanism is underway. If a message is sent through node 0 then the check should fail.
